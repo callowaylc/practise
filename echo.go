@@ -2,74 +2,43 @@ package main
 
 import (
   "bufio"
-  "fmt"
   "log"
   "net"
+  "encoding/hex"
 )
 
-func handleConnection(conn net.Conn) {
-  defer conn.Close()
+func main() {
+  log.Printf("echo-server listening on tcp port 8800")
 
-  reader := bufio.NewReaderSize(conn, 2048)
-  tmpChan := make(chan []byte, 20140)
-
-  if tcp, ok := conn.(*net.TCPConn); ok {
-    tcp.SetNoDelay(true)
+  ln, err := net.Listen("tcp", ":8800")
+  if err != nil {
+    log.Fatalf("listen error, err=%s", err)
   }
 
-  go func() {
-    for {
-      data := <-tmpChan
-      remain := len(tmpChan)
-
-      for i := 0; i < remain; i++ {
-        left := <-tmpChan
-        data = append(data, left...)
-      }
-
-      size, err1 := conn.Write(data)
-      if err1 != nil || size != len(data) {
-        fmt.Println("write error: ", err1, size)
-        return
-      }
-    }
-
-  }()
-
-  buf := make([]byte, 8192)
+  accepted := 0
   for {
-    n, err := reader.Read(buf)
-    if err != nil {
-      fmt.Println("read error: ", err)
-      return
-    }
-
-    for pos := 0; pos < n; pos += 64 {
-      end := pos + 64
-      if end > n {
-        end = n
+      conn, err := ln.Accept()
+      if err != nil {
+        log.Fatalf("accept error, err=%s", err)
       }
-      send := []byte{}
-      send = append(send, buf[pos:end]...)
-      tmpChan <- send
-    }
+      accepted++
+      go handleConnection(conn)
+      log.Printf("connection accepted %d", accepted)
   }
 }
 
-func main() {
-  ln, err := net.Listen("tcp", ":3050")
-  if err != nil {
-    panic(err)
-  }
-
-  fmt.Println("listen 3050 ok")
+func handleConnection(conn net.Conn) {
+  bufr := bufio.NewReader(conn)
+  buf := make([]byte, 1024)
 
   for {
-    conn, err := ln.Accept()
+    readBytes, err := bufr.Read(buf)
     if err != nil {
-      log.Fatal("get client connection error: ", err)
+      log.Printf("handle connection error, err=%s", err)
+      conn.Close()
+      return
     }
-
-    go handleConnection(conn)
+    log.Printf("<->\n%s", hex.Dump(buf[:readBytes]))
+    conn.Write(buf[:readBytes])
   }
 }
