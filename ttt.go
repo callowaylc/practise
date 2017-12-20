@@ -1,23 +1,3 @@
-Skip to content
-The vote is over, but the fight for net neutrality isn’t. Show your support for a free and open internet.
-Learn more  Dismiss
-This repository
-Search
-Pull requests
-Issues
-Marketplace
-Explore
- @callowaylc
- Sign out
- Watch 1
-  Star 1  Fork 0 joshuaslate/golang-tic-tac-toe
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights
-Branch: master Find file Copy pathgolang-tic-tac-toe/main.go
-97da119  on Jan 18
-@joshuaslate joshuaslate Initial commit
-1 contributor
-RawBlameHistory
-100 lines (82 sloc)  2.39 KB
 package main
 
 import (

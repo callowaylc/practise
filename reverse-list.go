@@ -49,11 +49,13 @@ func main() {
 }
 
 func reverseLinkedList(list *Node, previous *Node) *Node  {
+  logger.Printf("list: %s, prev: %s", list, previous)
+
   current_head := list.Next
   list.Next = previous
 
-  logger.Printf("current_head: %+v", current_head)
-  logger.Printf("list: %v", list)
+  logger.Printf("current_head: %s, next: %s", current_head, current_head.Next)
+  logger.Printf("list: %+vs, next: %s", list, list.Next)
   logger.Println("---")
 
   if current_head != nil {
