@@ -1,15 +1,12 @@
 package main
 
 import (
-  "fmt"
+  _ "fmt"
+  "log"
+  _ "io/ioutil"
+  "os"
 )
 
-// interface ////////////////////////////////////
-
-type LinkedListNode interface {
-  HasNext() bool
-  Add(value string) *Node
-}
 
 // type /////////////////////////////////////////
 
@@ -20,40 +17,60 @@ type Node struct{
 
 // methods //////////////////////////////////////
 
-func (n *Node) HasNext() bool {
-  return n != nil
+func (n Node) String() string {
+  return n.Value
 }
 
 func (n *Node) Add(value string) *Node {
-  next := &Node{
+  n.Next = &Node{
     Value: value,
   }
-  n.Next = next
-
-  return next
+  return n.Next
 }
+
+// variables ////////////////////////////////////
+
+var logger *log.Logger
 
 // functions ////////////////////////////////////
 
-func init() { }
+func init() {
+  logger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+}
 
 func main() {
   head := Node{
-    Value: "f",
+    Value: "one",
   }
-  head.Add("u").Add("n")
+  head.Add("two").Add("three")
 
-  printLinkedList(&head)
+  printLinkedList(reverseLinkedList(&head, nil))
+
 }
 
-//func reverseLinkedList(head LinkedListNode) LinkedListNode {
-//
-//}
+func reverseLinkedList(list *Node, previous *Node) *Node  {
+  current_head := list.Next
+  list.Next = previous
 
-func printLinkedList(head Node) {
-  node := head.(Node)
-  for node.HasNext() {
-    fmt.Printf("%s", node)
+  logger.Printf("current_head: %+v", current_head)
+  logger.Printf("list: %v", list)
+  logger.Println("---")
+
+  if current_head != nil {
+    return reverseLinkedList(current_head, list)
+  }
+
+  return list
+}
+
+
+func printLinkedList(head *Node) {
+  node := head
+  hasNext := node.Next != nil
+
+  for hasNext {
+    logger.Println(node)
+    hasNext = node.Next != nil
     node = node.Next
   }
 }
